@@ -1,0 +1,15 @@
+org_name: nullstone
+name: gcp-cloudrun-gcs-trigger
+friendly_name: Cloud Run GCS Trigger
+description: Nullstone capability that triggers a Cloud Run job when a new object is added to a GCS bucket
+category: capability
+subcategory: datastores
+provider_types:
+    - gcp
+platform: cloudrun
+subplatform: pubsub
+type: ""
+appCategories:
+    - container
+is_public: true
+tool_name: terraform
