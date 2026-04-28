@@ -58,7 +58,16 @@ EOF
 
 locals {
   service_account_email = var.app_metadata["service_account_email"]
-  job_id                = var.app_metadata["job_id"]
+
+  # Target discovery: a connected Cloud Run Job populates job_name/job_id;
+  # a connected Cloud Run Service populates service_name/service_url. Exactly
+  # one must be present (enforced by precondition on the workflow resource).
+  job_name     = lookup(var.app_metadata, "job_name", "")
+  job_id       = lookup(var.app_metadata, "job_id", "")
+  service_name = lookup(var.app_metadata, "service_name", "")
+  service_url  = lookup(var.app_metadata, "service_url", "")
+
+  target_type = local.job_name != "" ? "job" : "service"
 
   object_pattern_for_workflow = var.object_name_pattern == null ? "" : var.object_name_pattern
 }

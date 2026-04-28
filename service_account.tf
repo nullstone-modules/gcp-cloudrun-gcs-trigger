@@ -31,8 +31,12 @@ resource "google_project_iam_member" "run_invoker" {
   member  = "serviceAccount:${google_service_account.trigger.email}"
 }
 
-# The workflow must act-as the job's own service account when starting an execution.
+# Job target only: the workflow must act-as the job's own service account
+# when starting an execution. Services run as their own SA when invoked over
+# HTTP, so no actAs grant is needed for the service path.
 resource "google_service_account_iam_member" "act_as_job_sa" {
+  count = local.target_type == "job" ? 1 : 0
+
   service_account_id = "projects/${local.project_id}/serviceAccounts/${local.service_account_email}"
   role               = "roles/iam.serviceAccountUser"
   member             = "serviceAccount:${google_service_account.trigger.email}"
