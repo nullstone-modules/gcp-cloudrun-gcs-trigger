@@ -1,4 +1,7 @@
 locals {
+  # Eventarc requires multi-region locations in lowercase (us/eu/asia); regional locations are already lowercase.
+  trigger_location = contains(["US", "EU", "ASIA"], upper(local.bucket_location)) ? lower(local.bucket_location) : local.bucket_location
+
   # Workflow step that runs the Cloud Run Job by calling the Jobs API.
   # The job is started with INPUT_BUCKET / INPUT_FILE env-var overrides.
   invoke_step_job = <<EOT
@@ -48,7 +51,7 @@ resource "google_eventarc_trigger" "this" {
   for_each = toset(var.event_types)
 
   name            = "${local.resource_name}-${regex("[^.]+$", each.key)}"
-  location        = local.bucket_location
+  location        = local.trigger_location
   labels          = local.labels
   service_account = google_service_account.trigger.email
 
