@@ -6,6 +6,7 @@ data "ns_connection" "bucket" {
 locals {
   bucket_name     = data.ns_connection.bucket.outputs.bucket_name
   bucket_location = data.ns_connection.bucket.outputs.bucket_location
+  bucket_project  = data.ns_connection.bucket.outputs.bucket_project
 }
 
 # Eventarc GCS triggers must live in the bucket's region or multi-region.
