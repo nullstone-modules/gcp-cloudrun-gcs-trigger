@@ -42,6 +42,34 @@ resource "google_service_account_iam_member" "act_as_job_sa" {
   member             = "serviceAccount:${google_service_account.trigger.email}"
 }
 
+# Job target only: starting an execution with containerOverrides (the env-var
+# injection in trigger.tf) needs run.jobs.runWithOverrides, which is NOT in
+# roles/run.invoker. roles/run.jobsExecutorWithOverrides is the minimum
+# predefined role that includes it (run.jobs.run + run.jobs.runWithOverrides
+# + run.executions.cancel, nothing else).
+resource "google_cloud_run_v2_job_iam_member" "run_with_overrides" {
+  count = local.target_type == "job" ? 1 : 0
+
+  project  = local.project_id
+  location = split("/", local.job_id)[3]
+  name     = local.job_name
+  role     = "roles/run.jobsExecutorWithOverrides"
+  member   = "serviceAccount:${google_service_account.trigger.email}"
+}
+
+# Job target only: the Workflows connector polls the long-running operation
+# returned by run.jobs.run via run.operations.get. Cloud Run operations have
+# no resource-level IAM, so this must be granted at project scope.
+# roles/run.viewer is the narrowest predefined role carrying that permission
+# (read-only across all Run resources in the project).
+resource "google_project_iam_member" "run_viewer" {
+  count = local.target_type == "job" ? 1 : 0
+
+  project = local.project_id
+  role    = "roles/run.viewer"
+  member  = "serviceAccount:${google_service_account.trigger.email}"
+}
+
 resource "google_storage_bucket_iam_member" "gcs_object_viewer" {
   bucket = local.bucket_name
   role   = "roles/storage.objectViewer"
