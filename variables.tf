@@ -44,6 +44,18 @@ EOF
   }
 }
 
+variable "unacked_message_age_threshold" {
+  description = <<EOF
+Threshold (in seconds) for the oldest unacked message age alert on each Eventarc-managed Pub/Sub subscription.
+An alert fires when the oldest unacked message in the subscription exceeds this age, which usually means the
+target Cloud Run job/service is failing to process events or is backed up. Only used when a "notification"
+datastore is connected; otherwise no alert policies are created.
+EOF
+
+  type    = number
+  default = 1800
+}
+
 variable "object_name_pattern" {
   description = <<EOF
 Optional regex matched against the object name (the path within the bucket).
