@@ -8,6 +8,17 @@ EOF
   default = {}
 }
 
+variable "post_app_metadata" {
+  description = <<EOF
+Nullstone automatically injects metadata from the app module into this module through this variable.
+This variable injects specific metadata from the primary app infrastructure as a way to avoid cyclical dependencies.
+This variable is a reserved variable for capabilities.
+EOF
+
+  type    = map(string)
+  default = {}
+}
+
 variable "event_types" {
   description = <<EOF
 GCS event types that should trigger the Cloud Run Job. Each entry creates one Eventarc trigger.
@@ -77,7 +88,8 @@ locals {
   job_name     = lookup(var.app_metadata, "job_name", "")
   job_id       = lookup(var.app_metadata, "job_id", "")
   service_name = lookup(var.app_metadata, "service_name", "")
-  service_url  = lookup(var.app_metadata, "service_url", "")
+
+  service_url  = lookup(var.post_app_metadata, "service_url", "")
 
   target_type = local.job_name != "" ? "job" : "service"
 
